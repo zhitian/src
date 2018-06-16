@@ -327,7 +327,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->ud = ud;
   g->mainthread = L;
   g->seed = makeseed(L);
-  g->gcrunning = 0;  /* no GC while building state */
+  g->gcrunning = 0;  /* no GC while building state建立状态时无GC */
   g->GCestimate = 0;
   g->strt.size = g->strt.nuse = 0;
   g->strt.hash = NULL;
@@ -348,7 +348,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcstepmul = LUAI_GCMUL;
   for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
-    /* memory allocation error: free partial state */
+    /* memory allocation error: free partial state内存分配错误：自由部分状态 */
     close_state(L);
     L = NULL;
   }
@@ -357,7 +357,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
 
 
 LUA_API void lua_close (lua_State *L) {
-  L = G(L)->mainthread;  /* only the main thread can be closed */
+  L = G(L)->mainthread;  /* only the main thread can be closed 只有主线程可以关闭*/
   lua_lock(L);
   close_state(L);
 }
