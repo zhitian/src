@@ -90,7 +90,7 @@ static int luaB_cocreate (lua_State *L) {
   lua_State *NL;
   luaL_checktype(L, 1, LUA_TFUNCTION);
   NL = lua_newthread(L);
-  lua_pushvalue(L, 1);  /* move function to top */
+  lua_pushvalue(L, 1);  /* move function to top 函数移到顶部*/
   lua_xmove(L, NL, 1);  /* move function from L to NL */
   return 1;
 }

@@ -31,6 +31,7 @@
 ** You can define LUA_FLOORN2I if you want to convert floats to integers
 ** by flooring them (instead of raising an error if they are not
 ** integral values)
+如果您想要将浮点数转换为整型数，可以定义LUA_FLOORN2I(如果不是整型值，就不要抛出错误)
 */
 #if !defined(LUA_FLOORN2I)
 #define LUA_FLOORN2I		0

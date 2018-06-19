@@ -17,13 +17,15 @@
 
 
 /*
-** Extra tags for non-values
+** Extra tags for non-values额外的标签为非值
 */
-#define LUA_TPROTO	LUA_NUMTAGS		/* function prototypes */
-#define LUA_TDEADKEY	(LUA_NUMTAGS+1)		/* removed keys in tables */
+#define LUA_TPROTO	LUA_NUMTAGS		/* function prototypes函数原型 */
+#define LUA_TDEADKEY	(LUA_NUMTAGS+1)		/* removed keys in tables表中删除键 */
 
 /*
 ** number of all possible tags (including LUA_TNONE but excluding DEADKEY)
+所有可能的标签数量(包括LUA_TNONE，但不包括DEADKEY)
+
 */
 #define LUA_TOTALTAGS	(LUA_TPROTO + 2)
 
@@ -33,6 +35,11 @@
 ** bits 0-3: actual tag (a LUA_T* value)
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
+**标签标记的值有以下使用位:
+**位0-3:实际标签(LUA_T*值)
+**位4-5:变位
+**位6:价值是否可收藏。
+
 */
 
 
@@ -42,9 +49,15 @@
 ** 1 - light C function
 ** 2 - regular C function (closure)
 */
+/*
+* * LUA_TFUNCTION变体:
+** 0 - Lua函数
+** 1 -轻C函数
+** 2 -常规C功能(闭合)
+*/
 
 /* Variant tags for functions */
-#define LUA_TLCL	(LUA_TFUNCTION | (0 << 4))  /* Lua closure */
+#define LUA_TLCL	(LUA_TFUNCTION | (0 << 4))  /* Lua closure 闭包 */
 #define LUA_TLCF	(LUA_TFUNCTION | (1 << 4))  /* light C function */
 #define LUA_TCCL	(LUA_TFUNCTION | (2 << 4))  /* C closure */
 
@@ -123,16 +136,18 @@ typedef struct lua_TValue {
 #define val_(o)		((o)->value_)
 
 
-/* raw type tag of a TValue */
+/* raw type tag of a TValueTValue的原始类型标记 */
 #define rttype(o)	((o)->tt_)
 
-/* tag with no variants (bits 0-3) */
+/* tag with no variants (bits 0-3)没有变体的标签(位0-3) */
 #define novariant(x)	((x) & 0x0F)
 
-/* type tag of a TValue (bits 0-3 for tags + variant bits 4-5) */
+/* type tag of a TValue (bits 0-3 for tags + variant bits 4-5)
+TValue的类型标签(标签0-3位+ 4-5位)*/
 #define ttype(o)	(rttype(o) & 0x3F)
 
-/* type tag of a TValue with no variants (bits 0-3) */
+/* type tag of a TValue with no variants (bits 0-3)
+没有变量的TValue的类型标记(位0-3)*/
 #define ttnov(o)	(novariant(rttype(o)))
 
 
