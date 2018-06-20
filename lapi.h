@@ -11,6 +11,7 @@
 #include "llimits.h"
 #include "lstate.h"
 
+//入顶
 #define api_incr_top(L)   {L->top++; api_check(L, L->top <= L->ci->top, \
 				"stack overflow");}
 

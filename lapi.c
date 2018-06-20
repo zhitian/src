@@ -409,7 +409,7 @@ LUA_API size_t lua_rawlen (lua_State *L, int idx) {
   }
 }
 
-
+//转成c函数
 LUA_API lua_CFunction lua_tocfunction (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
   if (ttislcf(o)) return fvalue(o);
@@ -418,7 +418,7 @@ LUA_API lua_CFunction lua_tocfunction (lua_State *L, int idx) {
   else return NULL;  /* not a C function */
 }
 
-
+//转成用户数据
 LUA_API void *lua_touserdata (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
   switch (ttnov(o)) {
@@ -428,13 +428,13 @@ LUA_API void *lua_touserdata (lua_State *L, int idx) {
   }
 }
 
-
+//转成线程
 LUA_API lua_State *lua_tothread (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
   return (!ttisthread(o)) ? NULL : thvalue(o);
 }
 
-
+//转成指针
 LUA_API const void *lua_topointer (lua_State *L, int idx) {
   StkId o = index2addr(L, idx);
   switch (ttype(o)) {
@@ -453,9 +453,10 @@ LUA_API const void *lua_topointer (lua_State *L, int idx) {
 
 /*
 ** push functions (C -> stack)
+压栈
 */
 
-
+//压入空
 LUA_API void lua_pushnil (lua_State *L) {
   lua_lock(L);
   setnilvalue(L->top);
@@ -463,7 +464,7 @@ LUA_API void lua_pushnil (lua_State *L) {
   lua_unlock(L);
 }
 
-
+//压入数字
 LUA_API void lua_pushnumber (lua_State *L, lua_Number n) {
   lua_lock(L);
   setfltvalue(L->top, n);
@@ -471,7 +472,7 @@ LUA_API void lua_pushnumber (lua_State *L, lua_Number n) {
   lua_unlock(L);
 }
 
-
+//压入整数
 LUA_API void lua_pushinteger (lua_State *L, lua_Integer n) {
   lua_lock(L);
   setivalue(L->top, n);
@@ -484,6 +485,8 @@ LUA_API void lua_pushinteger (lua_State *L, lua_Integer n) {
 ** Pushes on the stack a string with given length. Avoid using 's' when
 ** 'len' == 0 (as 's' can be NULL in that case), due to later use of
 ** 'memcmp' and 'memcpy'.
+将给定长度的字符串推入堆栈。由于后面会用到'memcmp'和'memcpy'，所以避免在'len' = 0时使用's'(在这种情况下，as 's可以为NULL)。
+
 */
 LUA_API const char *lua_pushlstring (lua_State *L, const char *s, size_t len) {
   TString *ts;
@@ -496,7 +499,7 @@ LUA_API const char *lua_pushlstring (lua_State *L, const char *s, size_t len) {
   return getstr(ts);
 }
 
-
+//压入字符串
 LUA_API const char *lua_pushstring (lua_State *L, const char *s) {
   lua_lock(L);
   if (s == NULL)
@@ -513,7 +516,7 @@ LUA_API const char *lua_pushstring (lua_State *L, const char *s) {
   return s;
 }
 
-
+//压入定义格式的字符串
 LUA_API const char *lua_pushvfstring (lua_State *L, const char *fmt,
                                       va_list argp) {
   const char *ret;
@@ -524,7 +527,7 @@ LUA_API const char *lua_pushvfstring (lua_State *L, const char *fmt,
   return ret;
 }
 
-
+//压入定义格式的字符串        	 arguments parses
 LUA_API const char *lua_pushfstring (lua_State *L, const char *fmt, ...) {
   const char *ret;
   va_list argp;
@@ -537,7 +540,7 @@ LUA_API const char *lua_pushfstring (lua_State *L, const char *fmt, ...) {
   return ret;
 }
 
-
+//压入c闭包
 LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
   lua_lock(L);
   if (n == 0) {
@@ -553,6 +556,8 @@ LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
     while (n--) {
       setobj2n(L, &cl->upvalue[n], L->top + n);
       /* does not need barrier because closure is white */
+		/* 不需要界限,因为闭包是白的 */
+
     }
     setclCvalue(L, L->top, cl);
   }
@@ -561,7 +566,7 @@ LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
   lua_unlock(L);
 }
 
-
+//压入布尔量
 LUA_API void lua_pushboolean (lua_State *L, int b) {
   lua_lock(L);
   setbvalue(L->top, (b != 0));  /* ensure that true is 1 */
@@ -569,7 +574,7 @@ LUA_API void lua_pushboolean (lua_State *L, int b) {
   lua_unlock(L);
 }
 
-
+//压入轻用户数据
 LUA_API void lua_pushlightuserdata (lua_State *L, void *p) {
   lua_lock(L);
   setpvalue(L->top, p);
@@ -577,7 +582,7 @@ LUA_API void lua_pushlightuserdata (lua_State *L, void *p) {
   lua_unlock(L);
 }
 
-
+//压入线程
 LUA_API int lua_pushthread (lua_State *L) {
   lua_lock(L);
   setthvalue(L, L->top, L);
@@ -590,9 +595,10 @@ LUA_API int lua_pushthread (lua_State *L) {
 
 /*
 ** get functions (Lua -> stack)
+获取函数
 */
 
-
+//获取字符串
 static int auxgetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
   TString *str = luaS_new(L, k);
@@ -609,14 +615,14 @@ static int auxgetstr (lua_State *L, const TValue *t, const char *k) {
   return ttnov(L->top - 1);
 }
 
-
+//获取全局变量
 LUA_API int lua_getglobal (lua_State *L, const char *name) {
   Table *reg = hvalue(&G(L)->l_registry);
   lua_lock(L);
   return auxgetstr(L, luaH_getint(reg, LUA_RIDX_GLOBALS), name);
 }
 
-
+//获取表
 LUA_API int lua_gettable (lua_State *L, int idx) {
   StkId t;
   lua_lock(L);
@@ -626,7 +632,7 @@ LUA_API int lua_gettable (lua_State *L, int idx) {
   return ttnov(L->top - 1);
 }
 
-
+//获取字段
 LUA_API int lua_getfield (lua_State *L, int idx, const char *k) {
   lua_lock(L);
   return auxgetstr(L, index2addr(L, idx), k);
