@@ -22,14 +22,14 @@
 
 
 static int luaB_print (lua_State *L) {
-  int n = lua_gettop(L);  /* number of arguments */
+  int n = lua_gettop(L);  /* number of arguments参数数量 */
   int i;
   lua_getglobal(L, "tostring");
   for (i=1; i<=n; i++) {
     const char *s;
     size_t l;
-    lua_pushvalue(L, -1);  /* function to be called */
-    lua_pushvalue(L, i);   /* value to print */
+    lua_pushvalue(L, -1);  /* function to be called 函数被调用*/
+    lua_pushvalue(L, i);   /* value to print值打印 */
     lua_call(L, 1, 1);
     s = lua_tolstring(L, -1, &l);  /* get result */
     if (s == NULL)
@@ -49,19 +49,19 @@ static int luaB_print (lua_State *L) {
 static const char *b_str2int (const char *s, int base, lua_Integer *pn) {
   lua_Unsigned n = 0;
   int neg = 0;
-  s += strspn(s, SPACECHARS);  /* skip initial spaces */
-  if (*s == '-') { s++; neg = 1; }  /* handle signal */
+  s += strspn(s, SPACECHARS);  /* skip initial spaces跳过初始空格 */
+  if (*s == '-') { s++; neg = 1; }  /* handle signal 处理信号*/
   else if (*s == '+') s++;
-  if (!isalnum((unsigned char)*s))  /* no digit? */
+  if (!isalnum((unsigned char)*s))  /* no digit? 没有数字？*/
     return NULL;
   do {
     int digit = (isdigit((unsigned char)*s)) ? *s - '0'
                    : (toupper((unsigned char)*s) - 'A') + 10;
-    if (digit >= base) return NULL;  /* invalid numeral */
+    if (digit >= base) return NULL;  /* invalid numeral无效的数字 */
     n = n * base + digit;
     s++;
   } while (isalnum((unsigned char)*s));
-  s += strspn(s, SPACECHARS);  /* skip trailing spaces */
+  s += strspn(s, SPACECHARS);  /* skip trailing spaces跳过尾随空格 */
   *pn = (lua_Integer)((neg) ? (0u - n) : n);
   return s;
 }

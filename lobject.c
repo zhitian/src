@@ -37,6 +37,8 @@ LUAI_DDEF const TValue luaO_nilobject_ = {NILCONSTANT};
 ** converts an integer to a "floating point byte", represented as
 ** (eeeeexxx), where the real value is (1xxx) * 2^(eeeee - 1) if
 ** eeeee != 0 and (xxx) otherwise.
+将整数转换为“浮点字节”，表示为（eeeeexxx），其中如果eeeee！= 0，实际值为（1xxx）* 2 ^（eeeee - 1），否则将（xxx）表示为。
+
 */
 int luaO_int2fb (unsigned int x) {
   int e = 0;  /* exponent */
@@ -53,7 +55,7 @@ int luaO_int2fb (unsigned int x) {
 }
 
 
-/* converts back */
+/* converts back//转换回来 */
 int luaO_fb2int (int x) {
   return (x < 8) ? x : ((x & 7) + 8) << ((x >> 3) - 1);
 }
@@ -79,7 +81,7 @@ int luaO_ceillog2 (unsigned int x) {
   return l + log_2[x];
 }
 
-
+//整数计算
 static lua_Integer intarith (lua_State *L, int op, lua_Integer v1,
                                                    lua_Integer v2) {
   switch (op) {
@@ -99,7 +101,7 @@ static lua_Integer intarith (lua_State *L, int op, lua_Integer v1,
   }
 }
 
-
+//数字计算
 static lua_Number numarith (lua_State *L, int op, lua_Number v1,
                                                   lua_Number v2) {
   switch (op) {
@@ -119,7 +121,21 @@ static lua_Number numarith (lua_State *L, int op, lua_Number v1,
   }
 }
 
-
+/*LUA_OPADD：执行addition（+）
+LUA_OPSUB：执行减法（-）
+LUA_OPMUL：执行乘法（*）
+LUA_OPDIV：执行浮动除法（/）
+LUA_OPIDIV：执行地板划分（//）
+LUA_OPMOD：执行modulo（%）
+LUA_OPPOW：执行幂（^）
+LUA_OPUNM：执行数学否定（一元-）
+LUA_OPBNOT：按位执行NOT（~）
+LUA_OPBAND：执行按位AND（&）
+LUA_OPBOR：执行按位OR（|）
+LUA_OPBXOR：执行按位异或（~）
+LUA_OPSHL：执行左移（<<）
+LUA_OPSHR：执行右移（>>）
+*/
 void luaO_arith (lua_State *L, int op, const TValue *p1, const TValue *p2,
                  TValue *res) {
   switch (op) {
@@ -483,7 +499,7 @@ const char *luaO_pushfstring (lua_State *L, const char *fmt, ...) {
 #define POS	"\"]"
 
 #define addstr(a,b,l)	( memcpy(a,b,(l) * sizeof(char)), a += (l) )
-
+//程序块id
 void luaO_chunkid (char *out, const char *source, size_t bufflen) {
   size_t l = strlen(source);
   if (*source == '=') {  /* 'literal' source */
