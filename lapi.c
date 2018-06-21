@@ -638,7 +638,7 @@ LUA_API int lua_getfield (lua_State *L, int idx, const char *k) {
   return auxgetstr(L, index2addr(L, idx), k);
 }
 
-
+//将值推到堆栈上t[i]，其中t是给定索引处的值。
 LUA_API int lua_geti (lua_State *L, int idx, lua_Integer n) {
   StkId t;
   const TValue *slot;
@@ -657,7 +657,7 @@ LUA_API int lua_geti (lua_State *L, int idx, lua_Integer n) {
   return ttnov(L->top - 1);
 }
 
-
+//原生获取 跳过元表 没有metamethods
 LUA_API int lua_rawget (lua_State *L, int idx) {
   StkId t;
   lua_lock(L);
@@ -668,7 +668,7 @@ LUA_API int lua_rawget (lua_State *L, int idx) {
   return ttnov(L->top - 1);
 }
 
-
+//将值推入堆栈t[n]，其中t是给定索引处的表。
 LUA_API int lua_rawgeti (lua_State *L, int idx, lua_Integer n) {
   StkId t;
   lua_lock(L);
@@ -680,7 +680,7 @@ LUA_API int lua_rawgeti (lua_State *L, int idx, lua_Integer n) {
   return ttnov(L->top - 1);
 }
 
-
+//将值推入堆栈t[k]，其中t是给定索引处的表，并且 k是指示p为轻型用户数据的指针。访问是原生的; 也就是说，它不会调用__indexmetamethod。
 LUA_API int lua_rawgetp (lua_State *L, int idx, const void *p) {
   StkId t;
   TValue k;
@@ -694,7 +694,7 @@ LUA_API int lua_rawgetp (lua_State *L, int idx, const void *p) {
   return ttnov(L->top - 1);
 }
 
-
+//创建一个新的空表并将其压入堆栈。
 LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
   Table *t;
   lua_lock(L);
@@ -707,7 +707,7 @@ LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
   lua_unlock(L);
 }
 
-
+//如果给定索引处的值具有metatable，则该函数会将metatable推送到堆栈并返回1.否则，该函数将返回0
 LUA_API int lua_getmetatable (lua_State *L, int objindex) {
   const TValue *obj;
   Table *mt;
@@ -734,7 +734,7 @@ LUA_API int lua_getmetatable (lua_State *L, int objindex) {
   return res;
 }
 
-
+//将与给定索引处的完整用户数据关联的Lua值推入堆栈。
 LUA_API int lua_getuservalue (lua_State *L, int idx) {
   StkId o;
   lua_lock(L);
@@ -753,6 +753,8 @@ LUA_API int lua_getuservalue (lua_State *L, int idx) {
 
 /*
 ** t[k] = value at the top of the stack (where 'k' is a string)
+[k] =栈顶值(k为字符串)
+
 */
 static void auxsetstr (lua_State *L, const TValue *t, const char *k) {
   const TValue *slot;
@@ -769,14 +771,14 @@ static void auxsetstr (lua_State *L, const TValue *t, const char *k) {
   lua_unlock(L);  /* lock done by caller */
 }
 
-
+//从堆栈中弹出一个值并将其设置为全局的新值name。
 LUA_API void lua_setglobal (lua_State *L, const char *name) {
   Table *reg = hvalue(&G(L)->l_registry);
   lua_lock(L);  /* unlock done in 'auxsetstr' */
   auxsetstr(L, luaH_getint(reg, LUA_RIDX_GLOBALS), name);
 }
 
-
+//该函数弹出堆栈中的键和值。和Lua一样，这个函数可能触发“newindex”事件的元方法
 LUA_API void lua_settable (lua_State *L, int idx) {
   StkId t;
   lua_lock(L);
@@ -787,13 +789,13 @@ LUA_API void lua_settable (lua_State *L, int idx) {
   lua_unlock(L);
 }
 
-
+//该函数从堆栈中弹出值。
 LUA_API void lua_setfield (lua_State *L, int idx, const char *k) {
   lua_lock(L);  /* unlock done in 'auxsetstr' */
   auxsetstr(L, index2addr(L, idx), k);
 }
 
-
+//该函数从堆栈中弹出值。和Lua一样，这个函数可能触发“newindex”事件的元方法
 LUA_API void lua_seti (lua_State *L, int idx, lua_Integer n) {
   StkId t;
   const TValue *slot;
@@ -811,7 +813,7 @@ LUA_API void lua_seti (lua_State *L, int idx, lua_Integer n) {
   lua_unlock(L);
 }
 
-
+//类似lua_settable，但做了原始分配（即没有metamethods）。
 LUA_API void lua_rawset (lua_State *L, int idx) {
   StkId o;
   TValue *slot;
@@ -827,7 +829,7 @@ LUA_API void lua_rawset (lua_State *L, int idx) {
   lua_unlock(L);
 }
 
-
+//该函数从堆栈中弹出值。该任务是原始的，也就是说，它不会调用__newindexmetamethod。
 LUA_API void lua_rawseti (lua_State *L, int idx, lua_Integer n) {
   StkId o;
   lua_lock(L);
@@ -840,7 +842,7 @@ LUA_API void lua_rawseti (lua_State *L, int idx, lua_Integer n) {
   lua_unlock(L);
 }
 
-
+//该函数从堆栈中弹出值。该任务是原始的，也就是说，它不会调用__newindexmetamethod。
 LUA_API void lua_rawsetp (lua_State *L, int idx, const void *p) {
   StkId o;
   TValue k, *slot;
@@ -856,7 +858,7 @@ LUA_API void lua_rawsetp (lua_State *L, int idx, const void *p) {
   lua_unlock(L);
 }
 
-
+//从堆栈中弹出一个表并将其设置为给定索引处的值的新元数据。
 LUA_API int lua_setmetatable (lua_State *L, int objindex) {
   TValue *obj;
   Table *mt;
@@ -896,7 +898,7 @@ LUA_API int lua_setmetatable (lua_State *L, int objindex) {
   return 1;
 }
 
-
+//从堆栈中弹出一个值，并将其设置为与给定索引处的完整用户数据关联的新值。
 LUA_API void lua_setuservalue (lua_State *L, int idx) {
   StkId o;
   lua_lock(L);
@@ -911,31 +913,31 @@ LUA_API void lua_setuservalue (lua_State *L, int idx) {
 
 
 /*
-** 'load' and 'call' functions (run Lua code)
+** 'load' and 'call' functions (run Lua code)'load'和'call'函数(运行Lua代码)
 */
 
 
 #define checkresults(L,na,nr) \
      api_check(L, (nr) == LUA_MULTRET || (L->ci->top - L->top >= (nr) - (na)), \
 	"results from function overflow current stack size")
-
+//结果来自函数溢出的当前堆栈大小。
 
 LUA_API void lua_callk (lua_State *L, int nargs, int nresults,
                         lua_KContext ctx, lua_KFunction k) {
   StkId func;
   lua_lock(L);
   api_check(L, k == NULL || !isLua(L->ci),
-    "cannot use continuations inside hooks");
+    "cannot use continuations inside hooks");//不能在钩子中使用延续
   api_checknelems(L, nargs+1);
   api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
   checkresults(L, nargs, nresults);
   func = L->top - (nargs+1);
-  if (k != NULL && L->nny == 0) {  /* need to prepare continuation? */
-    L->ci->u.c.k = k;  /* save continuation */
-    L->ci->u.c.ctx = ctx;  /* save context */
+  if (k != NULL && L->nny == 0) {  /* need to prepare continuation?/*需要准备续租吗?* / */
+    L->ci->u.c.k = k;  /* save continuation 保存延续*/
+    L->ci->u.c.ctx = ctx;  /* save context保存上下文 */
     luaD_call(L, func, nresults);  /* do the call */
   }
-  else  /* no continuation or no yieldable */
+  else  /* no continuation or no yieldable不能继续或不能屈服 */
     luaD_callnoyield(L, func, nresults);  /* just do the call */
   adjustresults(L, nresults);
   lua_unlock(L);
@@ -944,7 +946,7 @@ LUA_API void lua_callk (lua_State *L, int nargs, int nresults,
 
 
 /*
-** Execute a protected call.
+** Execute a protected call.执行一个受保护的调用
 */
 struct CallS {  /* data to 'f_call' */
   StkId func;
@@ -958,7 +960,7 @@ static void f_call (lua_State *L, void *ud) {
 }
 
 
-
+//这个函数的行为完全一样lua_pcall，但允许被调用函数产生
 LUA_API int lua_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
                         lua_KContext ctx, lua_KFunction k) {
   struct CallS c;
@@ -1002,7 +1004,7 @@ LUA_API int lua_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
   return status;
 }
 
-
+//加载Lua块而不运行它。如果没有错误， lua_load则将编译后的块作为Lua函数推入堆栈顶部。否则，它会推送一条错误消息。
 LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
                       const char *chunkname, const char *mode) {
   ZIO z;
@@ -1012,12 +1014,13 @@ LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
   luaZ_init(L, &z, reader, data);
   status = luaD_protectedparser(L, &z, chunkname, mode);
   if (status == LUA_OK) {  /* no errors? */
-    LClosure *f = clLvalue(L->top - 1);  /* get newly created function */
-    if (f->nupvalues >= 1) {  /* does it have an upvalue? */
-      /* get global table from registry */
+    LClosure *f = clLvalue(L->top - 1);  /* get newly created function新创建的函数 */
+    if (f->nupvalues >= 1) {  /* does it have an upvalue?它是否有upvalue？ */
+      /* get global table from registry从注册表中获取全局表 */
       Table *reg = hvalue(&G(L)->l_registry);
       const TValue *gt = luaH_getint(reg, LUA_RIDX_GLOBALS);
-      /* set global table as 1st upvalue of 'f' (may be LUA_ENV) */
+      /* set global table as 1st upvalue of 'f' (may be LUA_ENV)
+      将全局表设置为'f'的第一个上限（可能是LUA_ENV） */
       setobj(L, f->upvals[0]->v, gt);
       luaC_upvalbarrier(L, f->upvals[0]);
     }
@@ -1026,7 +1029,7 @@ LUA_API int lua_load (lua_State *L, lua_Reader reader, void *data,
   return status;
 }
 
-
+//将函数转储为二进制块。
 LUA_API int lua_dump (lua_State *L, lua_Writer writer, void *data, int strip) {
   int status;
   TValue *o;
@@ -1041,14 +1044,28 @@ LUA_API int lua_dump (lua_State *L, lua_Writer writer, void *data, int strip) {
   return status;
 }
 
-
+//返回线程的状态L
 LUA_API int lua_status (lua_State *L) {
   return L->status;
 }
 
 
 /*
-** Garbage-collection function
+** Garbage-collection function垃圾收集功能
+
+	控制垃圾收集器。
+	
+	根据参数的值，该功能执行几项任务what：
+	
+	LUA_GCSTOP： 停止垃圾收集器。
+	LUA_GCRESTART： 重新启动垃圾收集器。
+	LUA_GCCOLLECT： 执行完整的垃圾收集循环。
+	LUA_GCCOUNT： 返回Lua使用的当前内存量（以KB为单位）。
+	LUA_GCCOUNTB： 将由Lua使用的当前内存字节数除以1024的余数。
+	LUA_GCSTEP： 执行垃圾收集的增量步骤。
+	LUA_GCSETPAUSE： 设置data为收集器暂停的新值（请参阅§2.5）并返回暂停的前一个值。
+	LUA_GCSETSTEPMUL： 设置data为收集器步骤乘数的新值（见§2.5）并返回步骤乘数的前一个值。
+	LUA_GCISRUNNING： 返回一个布尔值，告诉收集器是否正在运行（即不停止）。
 */
 
 LUA_API int lua_gc (lua_State *L, int what, int data) {
@@ -1071,7 +1088,7 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
       break;
     }
     case LUA_GCCOUNT: {
-      /* GC values are expressed in Kbytes: #bytes/2^10 */
+      /* GC values are expressed in Kbytes: #bytes/2^10 GC值以千字节表示：＃字节/ 2 ^ 10 */
       res = cast_int(gettotalbytes(g) >> 10);
       break;
     }
@@ -1080,14 +1097,14 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
       break;
     }
     case LUA_GCSTEP: {
-      l_mem debt = 1;  /* =1 to signal that it did an actual step */
+      l_mem debt = 1;  /* =1 to signal that it did an actual step= 1来表示它做了一个实际的步骤 */
       lu_byte oldrunning = g->gcrunning;
       g->gcrunning = 1;  /* allow GC to run */
       if (data == 0) {
         luaE_setdebt(g, -GCSTEPSIZE);  /* to do a "small" step */
         luaC_step(L);
       }
-      else {  /* add 'data' to total debt */
+      else {  /* add 'data' to total debt将“数据”添加到总债务 */
         debt = cast(l_mem, data) * 1024 + g->GCdebt;
         luaE_setdebt(g, debt);
         luaC_checkGC(L);
@@ -1122,9 +1139,10 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
 
 /*
 ** miscellaneous functions
+杂项功能
 */
 
-
+//生成一个Lua错误，使用堆栈顶部的值作为错误对象。
 LUA_API int lua_error (lua_State *L) {
   lua_lock(L);
   api_checknelems(L, 1);
@@ -1134,7 +1152,7 @@ LUA_API int lua_error (lua_State *L) {
 	return 0;  /* to avoid warnings */
 }
 
-
+//从栈中弹出一个键，并从给定索引处的表中推送键值对（在给定键之后的“下一个”对）
 LUA_API int lua_next (lua_State *L, int idx) {
   StkId t;
   int more;
@@ -1145,20 +1163,20 @@ LUA_API int lua_next (lua_State *L, int idx) {
   if (more) {
     api_incr_top(L);
   }
-  else  /* no more elements */
+  else  /* no more elements没有更多的元素 */
     L->top -= 1;  /* remove key */
   lua_unlock(L);
   return more;
 }
 
-
+//连接n堆栈顶部的值，弹出它们，并将结果保留在顶部。
 LUA_API void lua_concat (lua_State *L, int n) {
   lua_lock(L);
   api_checknelems(L, n);
   if (n >= 2) {
     luaV_concat(L, n);
   }
-  else if (n == 0) {  /* push empty string */
+  else if (n == 0) {  /* push empty string 推空串*/
     setsvalue2s(L, L->top, luaS_newlstr(L, "", 0));
     api_incr_top(L);
   }
@@ -1167,7 +1185,7 @@ LUA_API void lua_concat (lua_State *L, int n) {
   lua_unlock(L);
 }
 
-
+//返回给定索引处的值的长度。
 LUA_API void lua_len (lua_State *L, int idx) {
   StkId t;
   lua_lock(L);
@@ -1177,7 +1195,7 @@ LUA_API void lua_len (lua_State *L, int idx) {
   lua_unlock(L);
 }
 
-
+//返回给定状态的内存分配函数。
 LUA_API lua_Alloc lua_getallocf (lua_State *L, void **ud) {
   lua_Alloc f;
   lua_lock(L);
@@ -1187,7 +1205,7 @@ LUA_API lua_Alloc lua_getallocf (lua_State *L, void **ud) {
   return f;
 }
 
-
+//f 用用户数据 改变给定状态的分配器功能ud。
 LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud) {
   lua_lock(L);
   G(L)->ud = ud;
@@ -1195,7 +1213,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud) {
   lua_unlock(L);
 }
 
-
+//这个函数分配给定大小的新内存块，将一个新的完整用户数据和块地址一起压入堆栈，并返回这个地址。主机程序可以自由使用该内存。
 LUA_API void *lua_newuserdata (lua_State *L, size_t size) {
   Udata *u;
   lua_lock(L);
@@ -1233,7 +1251,7 @@ static const char *aux_upvalue (StkId fi, int n, TValue **val,
   }
 }
 
-
+//获取有关n索引处闭包的最新价值的信息funcindex
 LUA_API const char *lua_getupvalue (lua_State *L, int funcindex, int n) {
   const char *name;
   TValue *val = NULL;  /* to avoid warnings */
@@ -1247,7 +1265,7 @@ LUA_API const char *lua_getupvalue (lua_State *L, int funcindex, int n) {
   return name;
 }
 
-
+//设置封闭的upvalue的值
 LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n) {
   const char *name;
   TValue *val = NULL;  /* to avoid warnings */
@@ -1279,7 +1297,7 @@ static UpVal **getupvalref (lua_State *L, int fidx, int n, LClosure **pf) {
   return &f->upvals[n - 1];  /* get its upvalue pointer 得到它的upvalue 指针*/
 }
 
-//upvalueid
+//n 从索引处的闭包 返回编号为upvalue的唯一标识符funcindex。
 LUA_API void *lua_upvalueid (lua_State *L, int fidx, int n) {
   StkId fi = index2addr(L, fidx);
   switch (ttype(fi)) {
@@ -1298,7 +1316,7 @@ LUA_API void *lua_upvalueid (lua_State *L, int fidx, int n) {
   }
 }
 
-//lua_upvalue加入
+//lua_upvalue加入 使n1指数中Lua收盘价的第 - 高价值funcindex1 指n2的是指数中Lua收盘价的第 - 高价值funcindex2。
 LUA_API void lua_upvaluejoin (lua_State *L, int fidx1, int n1,
                                             int fidx2, int n2) {
   LClosure *f1;
